@@ -217,6 +217,10 @@
     .map-head p{font-size:15px;margin-top:6px}
     .map{grid-column:1;grid-row:1;margin-top:0}
   }
+  .gh-right{display:flex;align-items:center;gap:6px;flex:none}
+  .to-map{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;color:var(--blue);background:var(--card);
+    padding:6px 11px;border-radius:999px;box-shadow:inset 0 0 0 1.5px var(--line);white-space:nowrap}
+  .to-map:hover{background:var(--blue);color:#fff;box-shadow:none}
 </style>
 </head>
 <body>
@@ -399,7 +403,8 @@ function render(){
     if (!hits.length && !showEmptyGroup) return;
     total += hits.length;
     const uLink = g.ig ? `<a class="u-link" href="${igUrl(g.ig)}" target="_blank" rel="noopener">@${esc(g.ig)}</a>` : '';
-    html += `<section class="group"><div class="group-head"><h2>${esc(g.u)}<small>${hits.length}곳</small></h2>${uLink}</div>`;
+    const toMap = state.q ? '' : `<button class="to-map" type="button" aria-label="지도로 돌아가기"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>지도</button>`;
+    html += `<section class="group"><div class="group-head"><h2>${esc(g.u)}<small>${hits.length}곳</small></h2><div class="gh-right">${toMap}${uLink}</div></div>`;
     if (g.note) html += `<p class="u-note">${esc(g.note)}</p>`;
     if (!hits.length) html += `<p class="u-note">지역 대표 계정으로 문의해 주세요.</p>`;
     html += `<div class="cards">${hits.map(card).join('')}</div></section>`;
@@ -440,6 +445,11 @@ function scrollToList(){
   const off = innerWidth>=1000 ? 0 : document.querySelector('.search-bar').offsetHeight;
   scrollTo({top: $('list').getBoundingClientRect().top + scrollY - off - 6, behavior:'smooth'});
 }
+function scrollToMap(){
+  const off = innerWidth>=1000 ? 0 : document.querySelector('.search-bar').offsetHeight;
+  scrollTo({top: $('mapbox').getBoundingClientRect().top + scrollY - off - 6, behavior:'smooth'});
+}
+document.addEventListener('click', e=>{ if (e.target.closest('.to-map')) scrollToMap(); });
 function syncMap(){ $('mapbox').hidden = !!state.q; }
 
 /* ---------- 검색/토글 ---------- */
