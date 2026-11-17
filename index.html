@@ -360,7 +360,7 @@ const chips = $('chips');
 ['전체', ...DATA.map(g=>g.u)].forEach(u=>{
   const b = document.createElement('button');
   b.className = 'chip' + (u==='전체'?' on':''); b.textContent = u; b.setAttribute('role','tab');
-  b.dataset.u = u; b.onclick = () => setU(u);
+  b.dataset.u = u; b.onclick = () => { setU(u); if (u!=='전체') scrollToList(); };
   chips.appendChild(b);
 });
 
