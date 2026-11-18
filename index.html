@@ -307,12 +307,12 @@
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="repTitle">
     <div class="grab"></div>
     <div class="sheet-head"><h3 id="repTitle">정보 제보하기</h3><button class="x" data-close aria-label="닫기">✕</button></div>
-    <p class="desc">새 계정이 생겼거나 아이디가 바뀌었나요? 작성 후 복사해서 담당 간사에게 보내 주세요.</p>
+    <p class="desc">새 계정이 생겼거나 아이디가 바뀌었나요? 보내 주시면 확인 후 사이트에 반영할게요.</p>
     <label class="f" for="repType">제보 유형 <span>*</span></label>
     <select class="in" id="repType">
       <option>새 인스타 계정 추가</option>
       <option>인스타 아이디 변경</option>
-      <option>학교 추가/수정</option>
+      <option>학교 추가·수정</option>
       <option>모임 정보 기타</option>
     </select>
     <label class="f" for="repSchool">학교 또는 센터 이름 <span>*</span></label>
@@ -321,7 +321,8 @@
     <textarea class="in" id="repBody" placeholder="예: 새 계정은 @pnu_sfc_new 입니다"></textarea>
     <label class="f" for="repWho">제보자 (선택)</label>
     <input class="in" id="repWho" placeholder="이름 / 소속">
-    <div class="actions"><button class="btn primary" id="repCopy">제보 내용 복사하기</button></div>
+    <div class="actions"><button class="btn ghost" id="repCopy">내용 복사</button><button class="btn primary" id="repSend">제보 보내기</button></div>
+    <p class="fallback" style="text-align:center">구글 폼으로 바로 보내져요. <a href="#" id="repFormLink">폼에서 직접 작성하기</a></p>
   </div>
 </div>
 
@@ -405,7 +406,7 @@ function render(){
   if (!html) html = `<div class="empty"><div class="big">🔍</div><p>‘${esc(state.q)}’에 맞는 캠퍼스를 찾지 못했어요.<br>줄임말 대신 정식 이름으로 검색해 보세요.</p><button id="toReport">우리 학교 제보하기</button></div>`;
   list.innerHTML = html;
   $('count').textContent = total;
-  const tr = $('toReport'); if (tr) tr.onclick = openForm;
+  const tr = $('toReport'); if (tr) tr.onclick = () => openReport(state.q);
 }
 
 
@@ -507,15 +508,42 @@ $('qrSave').onclick = ()=>{
   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
 };
 
-/* ---------- 제보 ---------- */
-const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfLw2QXn7322iHKlReVHC6M6V94gCFfsoi1hR5FuM9mASoTaA/viewform';
-function openForm(){ window.open(FORM_URL, '_blank', 'noopener'); }
-$('openReport').onclick = openForm;
+/* ---------- 제보 (사이트 양식 → 구글 폼 자동 전송) ---------- */
+const FORM_BASE = 'https://docs.google.com/forms/d/e/1FAIpQLSfLw2QXn7322iHKlReVHC6M6V94gCFfsoi1hR5FuM9mASoTaA/';
+const F = { type:'entry.2104774005', school:'entry.1863180047', body:'entry.751563981', who:'entry.1897929003' };
+function repData(){
+  return { type:$('repType').value, school:$('repSchool').value.trim(), body:$('repBody').value.trim(), who:$('repWho').value.trim() };
+}
+function prefillUrl(d){
+  const p = new URLSearchParams({usp:'pp_url'});
+  Object.keys(F).forEach(k=>{ if (d[k]) p.append(F[k], d[k]); });
+  return FORM_BASE + 'viewform?' + p.toString();
+}
+function openReport(school){
+  if (school) $('repSchool').value = school;
+  openModal('repModal');
+}
+$('openReport').onclick = ()=> openReport();
+$('repFormLink').onclick = e=>{ e.preventDefault(); window.open(prefillUrl(repData()), '_blank', 'noopener'); };
 $('repCopy').onclick = ()=>{
-  const s=$('repSchool').value.trim(), b=$('repBody').value.trim();
-  if (!s||!b){ toast('학교 이름과 제보 내용을 적어 주세요'); return; }
-  const w=$('repWho').value.trim();
-  copy(`[SFC 캠퍼스 인스타 제보]\n유형: ${$('repType').value}\n학교/센터: ${s}\n내용: ${b}${w?'\n제보자: '+w:''}`, '제보 내용을 복사했어요. 담당 간사에게 보내 주세요!');
+  const d=repData();
+  if (!d.school||!d.body){ toast('학교 이름과 제보 내용을 적어 주세요'); return; }
+  copy(`[SFC 캠퍼스 인스타 제보]\n유형: ${d.type}\n학교/센터: ${d.school}\n내용: ${d.body}${d.who?'\n제보자: '+d.who:''}`, '제보 내용을 복사했어요');
+};
+$('repSend').onclick = async ()=>{
+  const d=repData();
+  if (!d.school||!d.body){ toast('학교 이름과 제보 내용을 적어 주세요'); return; }
+  const btn=$('repSend'); btn.disabled=true; btn.textContent='보내는 중…';
+  const body=new URLSearchParams(); Object.keys(F).forEach(k=>{ if (d[k]) body.append(F[k], d[k]); });
+  try{
+    await fetch(FORM_BASE+'formResponse', {method:'POST', mode:'no-cors', body});
+    ['repSchool','repBody','repWho'].forEach(id=>$(id).value='');
+    closeModal($('repModal'));
+    toast('제보가 접수됐어요. 감사합니다!');
+  }catch(err){
+    toast('전송에 실패했어요. 폼에서 직접 작성해 주세요');
+    window.open(prefillUrl(d), '_blank', 'noopener');
+  }finally{ btn.disabled=false; btn.textContent='제보 보내기'; }
 };
 
 const sb=document.querySelector('.search-bar');
