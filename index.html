@@ -373,7 +373,7 @@ function match(r){
 }
 
 function card(r){
-  const withLine = r.note ? `<div class="with"><b>함께하는 학교·참고</b>${esc(r.note)}</div>` : '';
+  const withLine = r.note ? `<div class="with"><b>함께하는 학교</b>${esc(r.note)}</div>` : '';
   if (r.ig){
     return `<article class="card">
       <div class="card-top"><div><div class="name">${esc(r.n)}</div><div class="handle">@${esc(r.ig)}</div></div><span class="badge yes">인스타 있음</span></div>
