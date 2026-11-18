@@ -405,7 +405,7 @@ function render(){
   if (!html) html = `<div class="empty"><div class="big">🔍</div><p>‘${esc(state.q)}’에 맞는 캠퍼스를 찾지 못했어요.<br>줄임말 대신 정식 이름으로 검색해 보세요.</p><button id="toReport">우리 학교 제보하기</button></div>`;
   list.innerHTML = html;
   $('count').textContent = total;
-  const tr = $('toReport'); if (tr) tr.onclick = () => { $('repSchool').value = state.q; openModal('repModal'); };
+  const tr = $('toReport'); if (tr) tr.onclick = openForm;
 }
 
 
@@ -508,7 +508,9 @@ $('qrSave').onclick = ()=>{
 };
 
 /* ---------- 제보 ---------- */
-$('openReport').onclick = ()=> openModal('repModal');
+const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfLw2QXn7322iHKlReVHC6M6V94gCFfsoi1hR5FuM9mASoTaA/viewform';
+function openForm(){ window.open(FORM_URL, '_blank', 'noopener'); }
+$('openReport').onclick = openForm;
 $('repCopy').onclick = ()=>{
   const s=$('repSchool').value.trim(), b=$('repBody').value.trim();
   if (!s||!b){ toast('학교 이름과 제보 내용을 적어 주세요'); return; }
