@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우리 학교 SFC 찾기 · 캠퍼스 인스타 디렉터리</title>
+<meta name="description" content="전국 캠퍼스 SFC 인스타그램 계정을 찾고 첫 메시지를 보내 보세요.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --blue:#27509b; --blue-d:#1b3b78; --blue-soft:#e9eff9;
+    --teal:#4fa7bd; --teal-d:#2f8aa1; --teal-soft:#e4f3f7;
+    --ink:#10224a; --ink-2:#4b5a7a; --ink-3:#8b97b0;
+    --bg:#f7f9fc; --card:#fff; --line:#dfe6f1;
+    --cut:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    color:var(--ink);line-height:1.5;letter-spacing:-.01em;background:var(--bg)}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:520px;margin:0 auto;padding:0 18px 120px;position:relative}
+
+  /* ---------- HERO : 블루프린트 그리드 + 45° 사선 ---------- */
+  .hero{position:relative;overflow:hidden;background:var(--blue);color:#fff;padding:40px 0 78px}
+  .hero-in{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:0 22px}
+  .logo{display:block;width:150px;color:#fff}
+  .logo svg,.wm svg{display:block;width:100%;height:auto}
+  .wm{display:block;width:120px;color:rgba(255,255,255,.78);margin-top:12px}
+  .tag{display:inline-block;margin-top:26px;font-size:12.5px;font-weight:800;letter-spacing:.06em;color:var(--blue);background:#fff;
+    padding:6px 16px 6px 12px;border-radius:999px 0 0 999px;clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%)}
+  .hero h1{font-size:28px;line-height:1.32;font-weight:800;letter-spacing:-.035em;margin-top:12px}
+  .hero h1 em{font-style:normal;color:#9fe0ef}
+  .hero p{color:rgba(255,255,255,.82);font-size:15px;margin-top:8px}
+
+  /* ---------- SEARCH ---------- */
+  .side{display:contents}
+  .search-bar{position:sticky;top:0;z-index:10;max-width:520px;margin:-46px auto 0;padding:10px 18px 8px;background:transparent;transition:background .2s}
+  .search-bar.stuck{background:rgba(247,249,252,.96);backdrop-filter:blur(8px);box-shadow:0 1px 0 var(--line)}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--card);
+    border-radius:999px 0 0 999px;clip-path:polygon(0 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%);
+    padding:0 10px 0 18px;height:56px}
+  .search-wrap{filter:drop-shadow(0 8px 18px rgba(16,34,74,.2))}
+  .search{border:0}.search:focus-within{box-shadow:inset 0 0 0 2px var(--teal)}
+  .search svg{flex:none;color:var(--blue)}
+  .search input{flex:1;border:0;outline:0;font:inherit;font-size:16px;background:none;color:var(--ink);min-width:0}
+  .search input::placeholder{color:var(--ink-3)}
+  .search input::-webkit-search-cancel-button{display:none}
+  .clear{width:34px;height:34px;border-radius:50%;display:none;place-items:center;color:var(--ink-3);font-size:16px;margin-right:6px}
+  .clear.show{display:grid}
+  .clear:hover{background:var(--bg)}
+
+  .chips{display:flex;gap:7px;overflow-x:auto;padding:12px 2px 4px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;padding:8px 16px 8px 14px;font-size:14px;font-weight:700;color:var(--blue);background:var(--card);white-space:nowrap;
+    border-radius:999px 0 0 999px;clip-path:polygon(0 0,100% 0,calc(100% - 9px) 100%,0 100%);box-shadow:inset 0 0 0 1.5px var(--line)}
+  .chip.on{background:var(--blue);color:#fff;box-shadow:none}
+
+  .meta{display:flex;justify-content:space-between;align-items:center;padding:12px 2px 4px;font-size:14px;color:var(--ink-2)}
+  .meta b{color:var(--blue);font-weight:800;font-size:16px}
+  .toggle{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink-2)}
+  .switch{width:42px;height:24px;border-radius:999px;background:#cfd8e6;position:relative;transition:background .2s}
+  .switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+  .toggle[aria-checked="true"] .switch{background:var(--teal)}
+  .toggle[aria-checked="true"] .switch::after{transform:translateX(18px)}
+
+  /* ---------- LIST ---------- */
+  .group{margin-top:26px}
+  .group-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px 10px}
+  .group-head h2{display:flex;align-items:center;gap:9px;font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--blue)}
+  .group-head h2::before{content:"";width:18px;height:12px;background:var(--teal);clip-path:polygon(40% 0,100% 0,60% 100%,0 100%)}
+  .group-head h2 small{font-size:13px;color:var(--ink-3);font-weight:600}
+  .u-link{font-size:13px;font-weight:700;color:var(--teal-d);background:var(--teal-soft);padding:6px 14px 6px 11px;white-space:nowrap;
+    border-radius:999px 0 0 999px;clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%)}
+  .u-note{font-size:13px;color:var(--ink-3);padding:0 4px 10px;margin-top:-4px}
+
+  .card{position:relative;background:var(--card);filter:drop-shadow(0 2px 6px rgba(16,34,74,.06));padding:16px 16px 14px;margin-bottom:10px;border-left:4px solid var(--blue);
+    clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,0 100%);box-shadow:0 1px 0 var(--line)}
+  .card.none{border-left-color:#c9d3e3}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding-right:12px}
+  .name{font-size:17px;font-weight:800;letter-spacing:-.02em}
+  .handle{font-size:14px;color:var(--teal-d);font-weight:600;margin-top:1px;word-break:break-all}
+  .badge{flex:none;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:999px;letter-spacing:.01em}
+  .badge.yes{background:var(--teal-soft);color:var(--teal-d)}
+  .badge.no{background:#eef1f6;color:var(--ink-3)}
+  .with{font-size:13.5px;color:var(--ink-2);margin-top:10px;background:var(--bg);padding:8px 11px;border-left:2px solid var(--teal)}
+  .with b{color:var(--ink);font-weight:700;margin-right:4px}
+  .actions{display:flex;gap:8px;margin-top:12px}
+  .btn{flex:1;height:46px;font-size:14.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    border-radius:999px 0 0 999px;clip-path:polygon(0 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%)}
+  .btn.primary{background:var(--blue);color:#fff}
+  .btn.primary:hover{background:var(--blue-d)}
+  .btn.ghost{background:var(--blue-soft);color:var(--blue)}
+  .btn.teal{background:var(--teal);color:#fff}
+  .btn.white{background:#fff;color:var(--blue);box-shadow:inset 0 0 0 1.5px var(--line)}
+  .fallback{font-size:13.5px;color:var(--ink-2);margin-top:10px}
+  .fallback a{color:var(--blue);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+
+  .empty{text-align:center;padding:50px 10px;color:var(--ink-2)}
+  .empty .big{font-size:40px}
+  .empty p{margin-top:8px}
+  .empty button{margin-top:14px;color:var(--blue);font-weight:800;text-decoration:underline;text-underline-offset:3px}
+
+  /* ---------- DOCK & FOOTER ---------- */
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(to top,var(--bg) 65%,rgba(247,249,252,0))}
+  .dock-in{max-width:520px;margin:0 auto;display:flex;gap:6px}
+  .dock .btn{height:52px;font-size:14px;padding:0 4px;white-space:nowrap;min-width:0}
+  .btn.navy{background:#173a7a;color:#fff}
+  .btn.navy:hover{background:#10306a}
+
+  footer{margin-top:40px;padding:26px 0 0;border-top:1.5px solid var(--line);text-align:center;color:var(--ink-3);font-size:12.5px;line-height:1.7}
+  footer .fw{width:150px;margin:0 auto 12px;color:var(--blue);opacity:.9}
+  footer .fw svg{display:block;width:100%;height:auto}
+
+  /* ---------- MODAL ---------- */
+  .scrim{position:fixed;inset:0;background:rgba(16,34,74,.5);z-index:50;display:none;align-items:flex-end;justify-content:center}
+  .scrim.open{display:flex;animation:fade .18s ease}
+  .sheet{position:relative;background:var(--card);width:100%;max-width:520px;padding:12px 20px calc(22px + env(safe-area-inset-bottom));
+    max-height:92vh;overflow-y:auto;animation:up .22s cubic-bezier(.2,.8,.2,1);clip-path:polygon(0 0,calc(100% - 28px) 0,100% 28px,100% 100%,0 100%)}
+  .sheet::before{content:"";display:block;height:5px;margin:-12px -20px 16px;background:linear-gradient(90deg,var(--blue) 70%,var(--teal) 70%)}
+  .sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding-right:18px}
+  .sheet h3{font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--blue)}
+  .x{width:36px;height:36px;border-radius:50%;font-size:18px;color:var(--ink-3)}
+  .x:hover{background:var(--bg)}
+  .sheet .desc{font-size:14px;color:var(--ink-2);margin-bottom:14px}
+  label.f{display:block;font-size:13px;font-weight:800;color:var(--ink-2);margin:12px 0 6px}
+  label.f span{color:var(--teal-d)}
+  .in{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:12px 13px;font:inherit;font-size:16px;color:var(--ink);background:#fff;outline:0}
+  .in:focus{border-color:var(--blue)}
+  textarea.in{resize:vertical;min-height:150px;line-height:1.6}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .sheet .actions{margin-top:16px}
+  .qr-box{position:relative;display:grid;place-items:center;padding:24px;margin:6px 0 4px;background:var(--blue)}
+  .qr-box canvas{width:200px;height:200px;image-rendering:pixelated;background:#fff}
+  .qr-box .qlogo{width:90px;color:#fff;margin-top:14px}
+  .qr-box .qlogo svg{display:block;width:100%;height:auto}
+  .qr-url{font-size:12.5px;color:var(--ink-3);text-align:center;word-break:break-all;margin-top:8px}
+
+  .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;
+    padding:11px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;pointer-events:none;transition:all .25s;z-index:80;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+  @media (min-width:600px){
+    .scrim{align-items:center}
+    .hero{padding:56px 0 90px}
+    .hero h1{font-size:32px}
+    .logo{width:180px}
+  }
+  /* ================= PC 화면 (1000px 이상) ================= */
+  @media (min-width:1000px){
+    .layout{display:grid;grid-template-columns:420px 1fr;min-height:100vh}
+    .side{display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--blue);color:#fff;scrollbar-width:none}
+    .side::-webkit-scrollbar{display:none}
+    .hero{position:static;padding:48px 0 26px;background:transparent;overflow:visible}
+    .side>*:not(.hero){position:relative;z-index:1}
+      .hero-in{padding:0 36px}
+    .logo{width:170px}.wm{width:130px}
+    .hero h1{font-size:30px}
+    .search-bar,.search-bar.stuck{position:static;margin:0;max-width:none;padding:0 36px;background:transparent;box-shadow:none;backdrop-filter:none}
+    .chips{flex-wrap:wrap;overflow:visible;padding:16px 0 4px}
+    .chip{background:rgba(255,255,255,.1);color:#fff;box-shadow:none}
+    .chip:hover{background:rgba(255,255,255,.2)}
+    .chip.on{background:#fff;color:var(--blue)}
+    .meta{color:rgba(255,255,255,.8);padding:16px 0 0}
+    .meta b{color:#fff;font-size:20px}
+    .toggle{color:rgba(255,255,255,.9)}
+    .switch{background:rgba(255,255,255,.25)}
+    .dock{position:static;margin-top:auto;padding:28px 36px 32px;background:none}
+    .dock-in{max-width:none}
+    .dock .btn.white{box-shadow:none}
+    .dock .btn.navy{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35)}
+    .wrap{max-width:1180px;margin:0;padding:24px 48px 60px}
+    .group{margin-top:32px}
+    .group-head{padding-bottom:14px;border-bottom:1.5px solid var(--line);margin-bottom:16px}
+    .group-head h2{font-size:20px}
+    .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+    .card{margin:0;display:flex;flex-direction:column}
+    .card .actions{margin-top:auto;padding-top:12px}
+    .empty{padding:120px 10px}
+    .toast{bottom:40px}
+  }
+  /* ===== 지도 ===== */
+  .mapbox{margin-top:22px}
+  .mapbox[hidden]{display:none}
+  .map-head h2{font-size:18px;font-weight:800;color:var(--blue);letter-spacing:-.02em}
+  .map-head p{font-size:13.5px;color:var(--ink-2);margin-top:2px}
+  .map{position:relative;margin-top:12px;clip-path:polygon(0 0,calc(100% - 26px) 0,100% 26px,100% 100%,0 100%);line-height:0;
+    container-type:inline-size}
+  .map img{width:100%;height:auto;display:block}
+  .pin{position:absolute;width:0;height:0;padding:0;z-index:1}
+  .pin i{position:absolute;left:-6px;top:-6px;width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid var(--blue);
+    box-shadow:0 0 0 0 rgba(255,255,255,.7);animation:pulse 2.4s infinite}
+  .pin span{position:absolute;white-space:nowrap;line-height:1;font-size:clamp(10.5px,3.3cqi,15px);font-weight:800;color:var(--blue);
+    background:#fff;padding:.45em .8em;border-radius:999px;box-shadow:0 3px 10px rgba(5,20,60,.3);transition:background .15s,color .15s,transform .15s}
+  .pin.d-u span{left:50%;bottom:10px;transform:translateX(-50%)}
+  .pin.d-d span{left:50%;top:10px;transform:translateX(-50%)}
+  .pin.d-r span{left:11px;top:50%;transform:translateY(-50%)}
+  .pin.d-l span{right:11px;top:50%;transform:translateY(-50%)}
+  .pin:hover span,.pin:focus-visible span{background:var(--teal);color:#fff}
+  .pin.on{z-index:2}
+  .pin.on span{background:var(--blue);color:#fff;box-shadow:0 0 0 2px #fff,0 4px 14px rgba(5,20,60,.4)}
+  .pin.on i{background:var(--teal);border-color:#fff;width:16px;height:16px;left:-8px;top:-8px}
+  .map.picked .pin:not(.on) span{opacity:.75}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}70%{box-shadow:0 0 0 10px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+  @media (prefers-reduced-motion:reduce){.pin i{animation:none}}
+  @media (min-width:1000px){
+    .mapbox{margin-top:28px;max-width:1100px}
+    .map{max-width:560px}
+    .map-head{grid-column:1/-1;grid-row:1;padding-bottom:0}
+    .map-head h2{font-size:26px}
+    .map-head p{font-size:15px;margin-top:6px}
+    .map{grid-column:1;grid-row:2;margin-top:0}
+  }
+  .gh-right{display:flex;align-items:center;gap:6px;flex:none}
+  .to-map{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;color:var(--blue);background:var(--card);
+    padding:6px 11px;border-radius:999px;box-shadow:inset 0 0 0 1.5px var(--line);white-space:nowrap}
+  .to-map:hover{background:var(--blue);color:#fff;box-shadow:none}
+  /* ===== 가입 신청 ===== */
+  .join{display:flex;align-items:center;gap:12px;margin-top:10px;background:var(--card);padding:14px 14px 14px 16px;border-left:4px solid var(--teal);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%)}
+  .join-txt{flex:1;min-width:0}
+  .join-txt b{display:block;font-size:15px;font-weight:800;color:var(--blue)}
+  .join-txt span{display:block;font-size:12.5px;color:var(--ink-2);margin-top:2px;line-height:1.45}
+  .join .btn{flex:none;padding:0 18px;height:44px;font-size:14px}
+  .join-link{display:block;margin-top:10px;font-size:13px;font-weight:700;color:var(--teal-d)}
+  .join-link:hover{text-decoration:underline;text-underline-offset:3px}
+  .consent{margin-top:16px;background:var(--bg);padding:12px 13px;border-radius:10px;font-size:13.5px;color:var(--ink-2)}
+  .chk{display:flex;gap:8px;align-items:flex-start;line-height:1.45;cursor:pointer}
+  .chk+details,.consent details+.chk{margin-top:8px}
+  .chk input{width:18px;height:18px;margin-top:1px;flex:none;accent-color:var(--blue)}
+  .chk b{color:var(--ink)}
+  .consent details{margin-left:26px}
+  .consent summary{cursor:pointer;color:var(--blue);font-weight:700;font-size:12.5px}
+  .consent ul{margin:6px 0 0 16px;font-size:12.5px;line-height:1.6}
+  .done{text-align:center;padding:20px 0 6px}
+  .done-ic{width:56px;height:56px;margin:0 auto 12px;border-radius:50%;background:var(--teal);color:#fff;font-size:28px;font-weight:900;display:grid;place-items:center}
+  .done h4{font-size:19px;font-weight:800;color:var(--blue)}
+  .done p{font-size:14px;color:var(--ink-2);margin-top:6px}
+  @media (min-width:1000px){
+    .join{margin-top:16px;max-width:560px;flex-direction:column;align-items:stretch;justify-content:center;gap:34px;
+      padding:44px 40px;background:var(--blue);color:#fff;border-left:0;clip-path:polygon(0 0,calc(100% - 26px) 0,100% 26px,100% 100%,0 100%)}
+    .join-kicker{display:block;font-style:normal;font-size:13px;font-weight:800;letter-spacing:.12em;color:#9fe0ef;margin-bottom:10px}
+    .join-txt b{font-size:30px;line-height:1.3;color:#fff;letter-spacing:-.03em}
+    .join-txt span{font-size:15.5px;margin-top:12px;color:rgba(255,255,255,.82);line-height:1.6}
+    .join-steps{display:flex !important}
+    .join .btn{height:58px;padding:0 26px;font-size:17px;background:#fff;color:var(--blue)}
+    .join .btn:hover{background:var(--teal);color:#fff}
+  }
+  .join-kicker{display:none}
+  .join-steps{display:none;list-style:none;flex-direction:column;gap:18px;margin:0;padding:0}
+  .join-steps li{display:flex;gap:14px;align-items:flex-start}
+  .join-steps i{flex:none;width:34px;height:34px;border-radius:50%;background:var(--teal);color:#fff;font-style:normal;font-weight:900;font-size:16px;display:grid;place-items:center}
+  .join-steps b{display:block;font-size:17px;font-weight:800;color:#fff}
+  .join-steps span{display:block;font-size:14px;color:rgba(255,255,255,.75);margin-top:2px}
+  @media (min-width:1000px){ .join-kicker{display:block} }
+  @media (min-width:1280px){
+    .mapbox{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px;row-gap:16px;align-items:stretch}
+    .map{max-width:none}
+    .join{grid-column:2;grid-row:2;margin-top:0;max-width:none}
+  }
+  /* 모바일: 지도 위 남색 띠 배너 */
+  @media (max-width:999px){
+    .mapbox{display:flex;flex-direction:column}
+    .join{order:-1;margin:0 0 18px;background:var(--blue);border-left:0;padding:14px 12px 14px 18px;
+      clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+    .join-txt b{color:#fff;font-size:16px}
+    .join-txt span{display:none}
+    .join-short{display:block;font-size:12.5px;color:rgba(255,255,255,.8);margin-top:2px}
+    .join .btn{background:#fff;color:var(--blue);height:42px;padding:0 16px;font-weight:800}
+  }
+  @media (min-width:1000px){ .join-short{display:none} }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="side">
+<header class="hero">
+  <div class="hero-in">
+    <span class="logo" aria-label="SFC">__SFC__</span>
+    <span class="wm" aria-label="학생신앙운동">__HAK__</span>
+    <span class="tag">CAMPUS FINDER</span>
+    <h1>우리 학교 SFC,<br><em>어디로</em> 연락하면 될까요?</h1>
+    <p>학교 이름을 검색하고, 인스타로 첫 인사를 건네 보세요.</p>
+  </div>
+</header>
+  <div class="search-bar">
+    <div class="search-wrap"><div class="search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="학교 이름 검색 (예: 부산대, 홍대, 계명)" autocomplete="off" aria-label="학교 이름 검색">
+      <button class="clear" id="clear" aria-label="검색어 지우기">✕</button>
+    </div></div>
+    <div class="chips" id="chips" role="tablist" aria-label="지역(U) 선택"></div>
+    <div class="meta">
+      <span><b id="count">0</b>곳</span>
+      <button class="toggle" id="onlyIg" role="switch" aria-checked="false">인스타 있는 곳만 <span class="switch"></span></button>
+    </div>
+  </div>
+
+<div class="dock"><div class="dock-in">
+  <button class="btn white" id="openQr">QR로 공유</button>
+  <a class="btn navy" id="official" href="https://www.instagram.com/sfc.movement/" target="_blank" rel="noopener" aria-label="SFC 공식 인스타그램 계정">공식 계정</a>
+  <button class="btn teal" id="openReport">정보 제보하기</button>
+</div></div>
+</aside>
+<div class="wrap">
+
+  <section class="mapbox" id="mapbox" aria-label="지역 U 지도">
+    <div class="map-head"><h2>지도에서 우리 지역 찾기</h2><p>지역 버튼을 누르면 그 U의 캠퍼스만 보여요</p></div>
+    <div class="map" id="map"><img src="__MAP__" alt="SFC 지역 U 지도" width="840" height="1053"></div>
+    <div class="join">
+      <div class="join-txt"><em class="join-kicker">JOIN SFC</em><b>SFC에 함께하고 싶다면</b><small class="join-short">담당 간사가 직접 연락드려요</small><span>DM이 부담스럽거나 학교 계정이 없어도 괜찮아요. 신청서를 남기면 지역 담당 간사가 연락드려요.</span></div>
+      <ol class="join-steps">
+        <li><i>1</i><div><b>신청서 작성</b><span>지역 U와 학교, 연락처만 적으면 1분이면 끝나요</span></div></li>
+        <li><i>2</i><div><b>담당 간사 연락</b><span>소속 지역(U) 간사가 남겨 주신 연락처로 연락드려요</span></div></li>
+        <li><i>3</i><div><b>캠퍼스 모임 참여</b><span>우리 학교 SFC 모임에서 함께 만나요</span></div></li>
+      </ol>
+      <button class="btn primary" type="button" data-join>가입 신청하기</button>
+    </div>
+  </section>
+  <main id="list"></main>
+
+  <footer>
+    <div class="fw" aria-label="Student For Christ">__SFCW__</div>
+    전국 SFC 캠퍼스 인스타 디렉터리<br>
+    자료 기준일 __DATE__ · 정보가 다르면 ‘정보 제보하기’로 알려 주세요
+  </footer>
+</div>
+</div>
+
+
+
+<!-- DM modal -->
+<div class="scrim" id="dmModal" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dmTitle">
+    <div class="grab"></div>
+    <div class="sheet-head"><h3 id="dmTitle">첫 DM 보내기</h3><button class="x" data-close aria-label="닫기">✕</button></div>
+    <p class="desc" id="dmDesc"></p>
+    <div class="row2">
+      <div><label class="f" for="dmName">이름</label><input class="in" id="dmName" placeholder="홍길동"></div>
+      <div><label class="f" for="dmYear">학번/학년</label><input class="in" id="dmYear" placeholder="26학번"></div>
+    </div>
+    <label class="f" for="dmChurch">출석 교회 (선택)</label>
+    <input class="in" id="dmChurch" placeholder="○○교회">
+    <label class="f" for="dmMsg">보낼 메시지 <small style="font-weight:500;color:var(--ink-3)">· 자유롭게 고쳐도 돼요</small></label>
+    <textarea class="in" id="dmMsg"></textarea>
+    <div class="actions">
+      <button class="btn ghost" id="dmCopy">메시지 복사</button>
+      <a class="btn teal" id="dmOpen" target="_blank" rel="noopener">인스타 DM 열기 →</a>
+    </div>
+    <p class="fallback" style="text-align:center">복사한 뒤 DM 창에 붙여넣기만 하면 돼요.</p>
+  </div>
+</div>
+
+<!-- QR modal -->
+<div class="scrim" id="qrModal" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
+    <div class="grab"></div>
+    <div class="sheet-head"><h3 id="qrTitle">QR로 공유하기</h3><button class="x" data-close aria-label="닫기">✕</button></div>
+    <p class="desc">교회 주보, 단톡방, 수련회 자료에 넣어 새내기들에게 알려 주세요.</p>
+    <div class="qr-box"><canvas id="qrCanvas" width="400" height="400" aria-label="이 페이지 QR 코드"></canvas><span class="qlogo">__SFC__</span></div>
+    <p class="qr-url" id="qrUrl"></p>
+    <div class="actions">
+      <button class="btn ghost" id="qrCopy">링크 복사</button>
+      <button class="btn primary" id="qrSave">QR 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Join modal -->
+<div class="scrim" id="joinModal" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="joinTitle">
+    <div class="grab"></div>
+    <div class="sheet-head"><h3 id="joinTitle">SFC 가입 신청</h3><button class="x" data-close aria-label="닫기">✕</button></div>
+    <div id="joinForm">
+    <p class="desc">작성해 주시면 소속 지역(U) 담당 간사가 연락드립니다.</p>
+    <label class="f" for="jU">지역 U <span>*</span></label>
+    <select class="in" id="jU"><option value="">선택해 주세요</option><option>서울U</option><option>경기U</option><option>경기인천U</option><option>강원U</option><option>충청U</option><option>전북U</option><option>광주U</option><option>여순U</option><option>대구경북U</option><option>경동U</option><option>울산U</option><option>부산U</option><option>김해U</option><option>경남U</option><option>진주U</option><option>거창</option><option>제주U</option><option>잘 모르겠어요</option></select>
+    <label class="f" for="jSchool">학교(캠퍼스) <span>*</span></label>
+    <select class="in" id="jSchoolSel" disabled><option value="">지역 U를 먼저 선택해 주세요</option></select>
+    <input class="in" id="jSchool" placeholder="학교명을 직접 입력해 주세요 (예: 연세대학교 미래캠퍼스)" autocomplete="off" hidden style="margin-top:8px">
+    <div class="row2">
+      <div><label class="f" for="jYear">학번 <span>*</span></label><input class="in" id="jYear" placeholder="예: 26학번"></div>
+      <div><label class="f" for="jName">이름 <span>*</span></label><input class="in" id="jName" autocomplete="name"></div>
+    </div>
+    <label class="f" for="jPhone">연락처 <span>*</span></label>
+    <input class="in" id="jPhone" type="tel" inputmode="tel" placeholder="010-0000-0000" autocomplete="tel">
+    <label class="f" for="jChurch">출석 교회 (선택)</label>
+    <input class="in" id="jChurch">
+    <label class="f" for="jMsg">하고 싶은 말 (선택)</label>
+    <textarea class="in" id="jMsg" style="min-height:90px"></textarea>
+    <div class="consent">
+      <label class="chk"><input type="checkbox" id="jAgree"><span><b>[필수]</b> 개인정보 수집·이용에 동의합니다</span></label>
+      <details><summary>자세히 보기</summary>
+        <ul>
+          <li>수집 주체: 학생신앙운동(SFC) 대학청년사역부</li>
+          <li>목적: 가입 신청 확인 및 소속 캠퍼스 모임 안내·연락</li>
+          <li>항목: 지역 U, 학교, 학번, 이름, 연락처, (선택) 출석 교회</li>
+          <li>이용 범위: 대학청년사역부에서 취합하여 해당 지역(U) 담당 간사에게 전달되며, 위 목적으로만 이용됩니다.</li>
+          <li>보관 기간: SFC 운동원 자격을 유지하는 기간 동안 보관하며, 졸업 등으로 자격이 종료되면 지체 없이 파기합니다. 가입으로 이어지지 않은 경우 신청일로부터 1년 후 파기합니다.</li>
+          <li>동의를 거부할 수 있으며, 거부 시 가입 신청이 어렵습니다.</li>
+        </ul>
+      </details>
+      <label class="chk"><input type="checkbox" id="jNews"><span><b>[선택]</b> 대회·행사 등 SFC 소식을 문자나 카카오톡으로 받겠습니다</span></label>
+    </div>
+    <div class="actions"><button class="btn primary" id="jSend" type="button">신청하기</button></div>
+    </div>
+    <div id="joinDone" hidden class="done">
+      <div class="done-ic">✓</div>
+      <h4>신청이 접수됐어요</h4>
+      <p>담당 간사가 남겨 주신 연락처로 연락드릴게요.<br>기다리는 동안 학교 SFC 인스타도 둘러보세요!</p>
+      <div class="actions"><button class="btn ghost" data-close type="button">닫기</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Report modal -->
+<div class="scrim" id="repModal" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="repTitle">
+    <div class="grab"></div>
+    <div class="sheet-head"><h3 id="repTitle">정보 제보하기</h3><button class="x" data-close aria-label="닫기">✕</button></div>
+    <p class="desc">새 계정이 생겼거나 아이디가 바뀌었나요? 보내 주시면 확인 후 사이트에 반영할게요.</p>
+    <label class="f" for="repType">제보 유형 <span>*</span></label>
+    <select class="in" id="repType">
+      <option>새 인스타 계정 추가</option>
+      <option>인스타 아이디 변경</option>
+      <option>학교 추가·수정</option>
+      <option>모임 정보 기타</option>
+    </select>
+    <label class="f" for="repSchool">학교 또는 센터 이름 <span>*</span></label>
+    <input class="in" id="repSchool" placeholder="예: 부산대학교">
+    <label class="f" for="repBody">제보 내용 <span>*</span></label>
+    <textarea class="in" id="repBody" placeholder="예: 새 계정은 @pnu_sfc_new 입니다"></textarea>
+    <label class="f" for="repWho">제보자 <span>*</span></label>
+    <input class="in" id="repWho" placeholder="이름 / 소속 (예: 홍길동 / 부산대)" autocomplete="name">
+    <div class="actions"><button class="btn ghost" id="repCopy">내용 복사</button><button class="btn primary" id="repSend">제보 보내기</button></div>
+    <p class="fallback" style="text-align:center">구글 폼으로 바로 보내져요. <a href="#" id="repFormLink">폼에서 직접 작성하기</a></p>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>__QR__</script>
+<script>
+const DATA = __DATA__;
+
+/* ---------- 검색 정규화 & 줄임말 ---------- */
+const ALIAS = {
+  '홍익대':'홍대','숙명여대':'숙대','숙명':'숙대','한국외대':'외대','한국외국어대':'외대','외국어대':'외대',
+  '서울시립대':'시립대','서울과기대':'과기대','서울과학기술대':'과기대','정화예술대':'정화예대',
+  '추계예술대':'추계예대','백석예술대':'백석예대','한국성서대':'성서대','유니스트':'unist',
+  '포스텍':'포항공과대','카이스트':'kaist','교대':'교육대','대구교육대':'대구교대','부산교대':'부산교육대'
+};
+const norm = s => (s||'').toLowerCase().replace(/\s+/g,'').replace(/대학교/g,'대').replace(/학교/g,'').replace(/[•·&,()]/g,'');
+
+const rows = [];
+DATA.forEach(g => g.items.forEach(it => rows.push({...it, u:g.u, uIg:g.ig,
+  hay: norm([it.n, it.note, g.u, it.ig, it.kw].join(' '))})));
+
+/* ---------- 상태 ---------- */
+let state = { q:'', u:'전체', onlyIg:false };
+const $ = id => document.getElementById(id);
+
+/* ---------- 칩 ---------- */
+const chips = $('chips');
+['전체', ...DATA.map(g=>g.u)].forEach(u=>{
+  const b = document.createElement('button');
+  b.className = 'chip' + (u==='전체'?' on':''); b.textContent = u; b.setAttribute('role','tab');
+  b.dataset.u = u; b.onclick = () => { setU(u); if (u!=='전체') scrollToList(); };
+  chips.appendChild(b);
+});
+
+/* ---------- 렌더 ---------- */
+const esc = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const igUrl = id => 'https://instagram.com/' + encodeURIComponent(id);
+
+function match(r){
+  if (state.u!=='전체' && r.u!==state.u) return false;
+  if (state.onlyIg && !r.ig) return false;
+  if (!state.q) return true;
+  const q = norm(state.q);
+  if (r.hay.includes(q)) return true;
+  for (const [k,v] of Object.entries(ALIAS)) if (q.includes(norm(k)) && r.hay.includes(norm(q.replace(norm(k), norm(v))))) return true;
+  return false;
+}
+
+function card(r){
+  const withLine = r.note ? `<div class="with"><b>함께하는 학교</b>${esc(r.note)}</div>` : '';
+  if (r.ig){
+    return `<article class="card">
+      <div class="card-top"><div><div class="name">${esc(r.n)}</div><div class="handle">@${esc(r.ig)}</div></div><span class="badge yes">인스타 있음</span></div>
+      ${withLine}
+      <div class="actions">
+        <button class="btn primary" data-dm="${esc(r.ig)}" data-name="${esc(r.n)}">첫 DM 보내기</button>
+        <a class="btn ghost" href="${igUrl(r.ig)}" target="_blank" rel="noopener">계정 보기</a>
+      </div></article>`;
+  }
+  const fb = r.uIg ? `<p class="fallback">아직 개별 계정이 없어요. <a href="${igUrl(r.uIg)}" target="_blank" rel="noopener">${esc(r.u)} 계정(@${esc(r.uIg)})</a>으로 문의해 주세요.</p>` : '';
+  return `<article class="card none">
+    <div class="card-top"><div><div class="name">${esc(r.n)}</div></div><span class="badge no">계정 없음</span></div>
+    ${withLine}${fb}</article>`;
+}
+
+function render(){
+  const list = $('list'); let html = '', total = 0;
+  DATA.forEach(g=>{
+    const hits = rows.filter(r=>r.u===g.u && match(r));
+    const showEmptyGroup = !state.q && !state.onlyIg && g.items.length===0 && (state.u==='전체'||state.u===g.u);
+    if (!hits.length && !showEmptyGroup) return;
+    total += hits.length;
+    const uLink = g.ig ? `<a class="u-link" href="${igUrl(g.ig)}" target="_blank" rel="noopener">@${esc(g.ig)}</a>` : '';
+    const toMap = state.q ? '' : `<button class="to-map" type="button" aria-label="지도로 돌아가기"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>지도</button>`;
+    html += `<section class="group"><div class="group-head"><h2>${esc(g.u)}<small>${hits.length}곳</small></h2><div class="gh-right">${toMap}${uLink}</div></div>`;
+    if (g.note) html += `<p class="u-note">${esc(g.note)}</p>`;
+    if (!hits.length) html += `<p class="u-note">지역 대표 계정으로 문의해 주세요.</p>`;
+    html += `<div class="cards">${hits.map(card).join('')}</div></section>`;
+  });
+  if (!html) html = `<div class="empty"><div class="big">🔍</div><p>‘${esc(state.q)}’에 맞는 캠퍼스를 찾지 못했어요.<br>줄임말 대신 정식 이름으로 검색해 보세요.</p><button id="toReport">우리 학교 제보하기</button></div>`;
+  list.innerHTML = html;
+  $('count').textContent = total;
+  const tr = $('toReport'); if (tr) tr.onclick = () => openReport(state.q);
+}
+
+
+/* ---------- 지도 핀 ---------- */
+const PINS = {
+  '서울U':[37.9,30.2,'u'], '경기인천U':[30.8,31.7,'l'], '경기U':[43.8,35.9,'r'], '충청U':[44.0,45.0,'l'],
+  '전북U':[37.5,57.7,'u'], '광주U':[32.1,66.5,'l'], '여순U':[44.6,72.2,'d'], '진주U':[54.5,66.5,'l'],
+  '경남U':[62.9,68.7,'d'], '김해U':[68.8,65.8,'u'], '부산U':[74.6,69.4,'r'], '울산U':[78.6,61.9,'r'],
+  '경동U':[78.6,50.5,'r'], '대구경북U':[65.6,54.1,'u'], '제주U':[26.8,89.3,'r'], '거창':[52.2,59.5,'u'], '강원U':[62.0,26.0,'u']
+};
+const mapEl = $('map');
+DATA.forEach(g=>{
+  const p = PINS[g.u]; if (!p) return;
+  const b = document.createElement('button');
+  b.className = 'pin d-' + p[2]; b.style.left = p[0]+'%'; b.style.top = p[1]+'%'; b.dataset.u = g.u;
+  b.setAttribute('aria-label', `${g.u} 캠퍼스 ${g.items.length}곳 보기`);
+  b.innerHTML = `<i></i><span>${esc(g.u)}</span>`;
+  b.onclick = () => { setU(state.u===g.u ? '전체' : g.u); if (state.u!=='전체') scrollToList(); };
+  mapEl.appendChild(b);
+});
+function setU(u){
+  state.u = u;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on', c.dataset.u===u));
+  document.querySelectorAll('.pin').forEach(c=>c.classList.toggle('on', c.dataset.u===u));
+  mapEl.classList.toggle('picked', u!=='전체');
+  const on=document.querySelector('.chip.on'); if (on) chips.scrollTo({left: on.offsetLeft - 16, behavior:'smooth'});
+  render();
+}
+function scrollToList(){
+  const off = innerWidth>=1000 ? 0 : document.querySelector('.search-bar').offsetHeight;
+  scrollTo({top: $('list').getBoundingClientRect().top + scrollY - off - 6, behavior:'smooth'});
+}
+function scrollToMap(){
+  const off = innerWidth>=1000 ? 0 : document.querySelector('.search-bar').offsetHeight;
+  scrollTo({top: $('mapbox').getBoundingClientRect().top + scrollY - off - 6, behavior:'smooth'});
+}
+document.addEventListener('click', e=>{ if (e.target.closest('.to-map')) scrollToMap(); });
+function syncMap(){ $('mapbox').hidden = !!state.q; }
+
+/* ---------- 검색/토글 ---------- */
+$('q').addEventListener('input', e=>{ state.q = e.target.value.trim(); $('clear').classList.toggle('show', !!e.target.value); syncMap(); render(); });
+$('clear').onclick = ()=>{ $('q').value=''; state.q=''; $('clear').classList.remove('show'); syncMap(); $('q').focus(); render(); };
+$('onlyIg').onclick = e=>{ state.onlyIg = !state.onlyIg; e.currentTarget.setAttribute('aria-checked', state.onlyIg); render(); };
+
+/* ---------- 모달 ---------- */
+function openModal(id){ const m=$(id); m.classList.add('open'); m.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+function closeModal(m){ m.classList.remove('open'); m.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+document.querySelectorAll('.scrim').forEach(m=>{
+  m.addEventListener('click', e=>{ if (e.target===m || e.target.closest('[data-close]')) closeModal(m); });
+});
+document.addEventListener('keydown', e=>{ if (e.key==='Escape') document.querySelectorAll('.scrim.open').forEach(closeModal); });
+
+/* ---------- 복사 ---------- */
+async function copy(text, msg){
+  try { await navigator.clipboard.writeText(text); }
+  catch { const t=document.createElement('textarea'); t.value=text; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+  toast(msg||'복사했어요');
+}
+let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),1800); }
+
+/* ---------- 첫 DM ---------- */
+let dmTarget = null, dmEdited = false;
+function dmText(){
+  const n=$('dmName').value.trim()||'○○○', y=$('dmYear').value.trim(), c=$('dmChurch').value.trim();
+  return `안녕하세요! ${dmTarget.name}${y?' '+y:''} ${n}입니다 🙂\n${c?c+'에 다니고 있고, ':''}SFC 모임에 함께하고 싶어서 연락드려요.\n모임 시간이랑 장소를 알려 주실 수 있을까요? 감사합니다!`;
+}
+function refreshDm(){ if (!dmEdited) $('dmMsg').value = dmText(); }
+['dmName','dmYear','dmChurch'].forEach(id=>$(id).addEventListener('input', refreshDm));
+$('dmMsg').addEventListener('input', ()=> dmEdited = true);
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-dm]'); if (!b) return;
+  dmTarget = { ig:b.dataset.dm, name:b.dataset.name }; dmEdited = false;
+  $('dmDesc').textContent = `${dmTarget.name} SFC(@${dmTarget.ig})에 보낼 첫 인사예요.`;
+  $('dmOpen').href = 'https://ig.me/m/' + encodeURIComponent(dmTarget.ig);
+  refreshDm(); openModal('dmModal');
+});
+$('dmCopy').onclick = ()=> copy($('dmMsg').value, '메시지를 복사했어요. DM 창에 붙여넣으세요!');
+$('dmOpen').addEventListener('click', ()=>{ navigator.clipboard && navigator.clipboard.writeText($('dmMsg').value).catch(()=>{}); });
+
+/* ---------- QR ---------- */
+function drawQr(){
+  const url = location.href.split('#')[0];
+  $('qrUrl').textContent = url;
+  const qr = qrcode(0,'M'); qr.addData(url); qr.make();
+  const n = qr.getModuleCount(), cv=$('qrCanvas'), ctx=cv.getContext('2d'), m=4, s=Math.floor(cv.width/(n+m*2)), off=Math.floor((cv.width-s*n)/2);
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height); ctx.fillStyle='#27509b';
+  for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(qr.isDark(r,c)) ctx.fillRect(off+c*s, off+r*s, s, s);
+}
+$('openQr').onclick = ()=>{ drawQr(); openModal('qrModal'); };
+$('qrCopy').onclick = ()=> copy($('qrUrl').textContent, '링크를 복사했어요');
+$('qrSave').onclick = ()=>{
+  const W=640,H=780,c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d');
+  x.fillStyle='#27509b'; x.fillRect(0,0,W,H);
+  x.fillStyle='#fff'; x.fillRect(120,90,400,400); x.drawImage($('qrCanvas'),120,90,400,400);
+  const svg=document.querySelector('.qr-box .qlogo svg').outerHTML.replace('currentColor','#ffffff');
+  const img=new Image(); img.onload=()=>{ const w=220,h=w*img.height/img.width; x.drawImage(img,(W-w)/2,560,w,h);
+    x.fillStyle='rgba(255,255,255,.85)'; x.font='600 22px Pretendard, sans-serif'; x.textAlign='center'; x.fillText('우리 학교 SFC 찾기',W/2,560+h+48);
+    const a=document.createElement('a'); a.download='SFC_캠퍼스찾기_QR.png'; a.href=c.toDataURL('image/png'); a.click(); };
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+};
+
+
+/* ---------- 가입 신청 (사이트 양식 → 구글 폼 자동 전송) ---------- */
+const JOIN_BASE = 'https://docs.google.com/forms/d/e/1FAIpQLSf-JEJasSpvDWh36XkrJrwTqmLzn8d-qhBUX6MEHVSz8oofIQ/';
+const J = { u:'entry.203306015', school:'entry.1257042671', year:'entry.1594994454', name:'entry.824328495',
+  phone:'entry.114151134', church:'entry.2063905552', msg:'entry.2026868950', agree:'entry.962292032', news:'entry.541974611' };
+const AGREE_TXT = '동의합니다', NEWS_TXT = '대회·행사 등 SFC 소식을 문자나 카카오톡으로 받겠습니다';
+const CUSTOM='__custom';
+const ALL_SCHOOLS=[...new Set(DATA.flatMap(g=>g.schools||[]))].sort((a,b)=>a.localeCompare(b,'ko'));
+function fillSchools(u, pick){
+  const sel=$('jSchoolSel'), inp=$('jSchool');
+  if (!u){ sel.innerHTML='<option value="">지역 U를 먼저 선택해 주세요</option>'; sel.disabled=true; inp.hidden=true; return; }
+  const g=DATA.find(x=>x.u===u);
+  const list = g ? (g.schools||[]) : ALL_SCHOOLS;
+  sel.disabled=false;
+  sel.innerHTML='<option value="">학교를 선택해 주세요</option>'+list.map(s=>`<option>${esc(s)}</option>`).join('')+`<option value="${CUSTOM}">직접 입력</option>`;
+  if (pick && list.includes(pick)) sel.value=pick;
+  else if (!list.length) sel.value=CUSTOM;
+  syncCustom();
+}
+function syncCustom(){ const on=$('jSchoolSel').value===CUSTOM; $('jSchool').hidden=!on; if(!on) $('jSchool').value=''; }
+$('jU').addEventListener('change', ()=>fillSchools($('jU').value));
+$('jSchoolSel').addEventListener('change', ()=>{ syncCustom(); if($('jSchoolSel').value===CUSTOM) $('jSchool').focus(); });
+function openJoin(u, school){
+  $('joinForm').hidden = false; $('joinDone').hidden = true;
+  if (u) $('jU').value = [...$('jU').options].some(o=>o.value===u) ? u : '';
+  fillSchools($('jU').value, school);
+  openModal('joinModal');
+}
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-join]'); if (!b) return;
+  openJoin(b.dataset.u || (state.u!=='전체' ? state.u : ''), b.dataset.school || '');
+});
+$('jSend').onclick = async ()=>{
+  const v = id => $(id).value.trim();
+  const d = { u:v('jU'), school:($('jSchoolSel').value===CUSTOM ? v('jSchool') : v('jSchoolSel')), year:v('jYear'), name:v('jName'), phone:v('jPhone'), church:v('jChurch'), msg:v('jMsg') };
+  if (!d.u || !d.school || !d.year || !d.name || !d.phone){ toast('필수 항목을 모두 적어 주세요'); return; }
+  if (!/^0\d{1,2}[-\s]?\d{3,4}[-\s]?\d{4}$/.test(d.phone)){ toast('연락처를 다시 확인해 주세요'); return; }
+  if (!$('jAgree').checked){ toast('개인정보 수집·이용에 동의해 주세요'); return; }
+  const body = new URLSearchParams();
+  Object.keys(d).forEach(k=>{ if (d[k]) body.append(J[k], d[k]); });
+  body.append(J.agree, AGREE_TXT);
+  if ($('jNews').checked) body.append(J.news, NEWS_TXT);
+  const btn=$('jSend'); btn.disabled=true; btn.textContent='보내는 중…';
+  try{
+    await fetch(JOIN_BASE+'formResponse', {method:'POST', mode:'no-cors', body});
+    ['jSchool','jYear','jName','jPhone','jChurch','jMsg'].forEach(id=>$(id).value=''); $('jU').value=''; fillSchools('');
+    $('jAgree').checked=false; $('jNews').checked=false;
+    $('joinForm').hidden = true; $('joinDone').hidden = false;
+  }catch(err){
+    toast('전송에 실패했어요. 잠시 후 다시 시도해 주세요');
+  }finally{ btn.disabled=false; btn.textContent='신청하기'; }
+};
+
+/* ---------- 제보 (사이트 양식 → 구글 폼 자동 전송) ---------- */
+const FORM_BASE = 'https://docs.google.com/forms/d/e/1FAIpQLSfLw2QXn7322iHKlReVHC6M6V94gCFfsoi1hR5FuM9mASoTaA/';
+const F = { type:'entry.2104774005', school:'entry.1863180047', body:'entry.751563981', who:'entry.1897929003' };
+function repData(){
+  return { type:$('repType').value, school:$('repSchool').value.trim(), body:$('repBody').value.trim(), who:$('repWho').value.trim() };
+}
+function prefillUrl(d){
+  const p = new URLSearchParams({usp:'pp_url'});
+  Object.keys(F).forEach(k=>{ if (d[k]) p.append(F[k], d[k]); });
+  return FORM_BASE + 'viewform?' + p.toString();
+}
+function openReport(school){
+  if (school) $('repSchool').value = school;
+  openModal('repModal');
+}
+$('openReport').onclick = ()=> openReport();
+$('repFormLink').onclick = e=>{ e.preventDefault(); window.open(prefillUrl(repData()), '_blank', 'noopener'); };
+$('repCopy').onclick = ()=>{
+  const d=repData();
+  if (!d.school||!d.body||!d.who){ toast('학교 이름, 제보 내용, 제보자를 모두 적어 주세요'); return; }
+  copy(`[SFC 캠퍼스 인스타 제보]\n유형: ${d.type}\n학교/센터: ${d.school}\n내용: ${d.body}${d.who?'\n제보자: '+d.who:''}`, '제보 내용을 복사했어요');
+};
+$('repSend').onclick = async ()=>{
+  const d=repData();
+  if (!d.school||!d.body||!d.who){ toast('학교 이름, 제보 내용, 제보자를 모두 적어 주세요'); return; }
+  const btn=$('repSend'); btn.disabled=true; btn.textContent='보내는 중…';
+  const body=new URLSearchParams(); Object.keys(F).forEach(k=>{ if (d[k]) body.append(F[k], d[k]); });
+  try{
+    await fetch(FORM_BASE+'formResponse', {method:'POST', mode:'no-cors', body});
+    ['repSchool','repBody','repWho'].forEach(id=>$(id).value='');
+    closeModal($('repModal'));
+    toast('제보가 접수됐어요. 감사합니다!');
+  }catch(err){
+    toast('전송에 실패했어요. 폼에서 직접 작성해 주세요');
+    window.open(prefillUrl(d), '_blank', 'noopener');
+  }finally{ btn.disabled=false; btn.textContent='제보 보내기'; }
+};
+
+const sb=document.querySelector('.search-bar');
+addEventListener('scroll',()=>sb.classList.toggle('stuck', sb.getBoundingClientRect().top<=0 && scrollY>200),{passive:true});
+render();
+</script>
+</body>
+</html>
