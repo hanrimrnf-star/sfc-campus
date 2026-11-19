@@ -265,6 +265,7 @@
   /* 모바일: 지도 위 남색 띠 배너 */
   @media (max-width:999px){
     .mapbox{display:flex;flex-direction:column}
+    .mapbox .join{display:none}
     .join{order:-1;margin:0 0 18px;background:var(--blue);border-left:0;padding:14px 12px 14px 18px;
       clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
     .join-txt b{color:#fff;font-size:16px}
@@ -273,6 +274,15 @@
     .join .btn{background:#fff;color:var(--blue);height:42px;padding:0 16px;font-weight:800}
   }
   @media (min-width:1000px){ .join-short{display:none} }
+  /* 하단 정보 제보 띠 (가입 신청 띠와 같은 형태) */
+  .band{display:flex;align-items:center;gap:12px;background:var(--blue);padding:14px 12px 14px 18px;margin:0 auto 26px;max-width:560px;text-align:left;
+    clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+  .band-txt{flex:1;min-width:0}
+  .band-txt b{display:block;font-size:15px;font-weight:800;color:#fff;line-height:1.35}
+  .band-txt small{display:block;font-size:12.5px;color:rgba(255,255,255,.8);margin-top:3px}
+  .band .btn{flex:none;background:#fff;color:var(--blue);height:42px;padding:0 16px;font-size:14px;font-weight:800}
+  .band .btn:hover{background:var(--teal);color:#fff}
+  footer .band+.fw{margin-top:4px}
 </style>
 </head>
 <body>
@@ -303,7 +313,7 @@
 <div class="dock"><div class="dock-in">
   <button class="btn white" id="openQr">QR로 공유</button>
   <a class="btn navy" id="official" href="https://www.instagram.com/sfc.movement/" target="_blank" rel="noopener" aria-label="SFC 공식 인스타그램 계정">공식 계정</a>
-  <button class="btn teal" id="openReport">정보 제보하기</button>
+  <button class="btn teal" id="dockJoin" type="button" data-join>가입 신청하기</button>
 </div></div>
 </aside>
 <div class="wrap">
@@ -324,9 +334,13 @@
   <main id="list"></main>
 
   <footer>
+    <div class="band report-band">
+      <div class="band-txt"><b>바뀐 정보가 있나요?</b><small>확인 후 바로 반영할게요</small></div>
+      <button class="btn" id="openReport" type="button">정보 제보하기</button>
+    </div>
     <div class="fw" aria-label="Student For Christ">__SFCW__</div>
     전국 SFC 캠퍼스 인스타 디렉터리<br>
-    자료 기준일 __DATE__ · 정보가 다르면 ‘정보 제보하기’로 알려 주세요
+    자료 기준일 __DATE__
   </footer>
 </div>
 </div>
