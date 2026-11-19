@@ -434,8 +434,8 @@
     <input class="in" id="repSchool" placeholder="예: 부산대학교">
     <label class="f" for="repBody">제보 내용 <span>*</span></label>
     <textarea class="in" id="repBody" placeholder="예: 새 계정은 @pnu_sfc_new 입니다"></textarea>
-    <label class="f" for="repWho">제보자 (선택)</label>
-    <input class="in" id="repWho" placeholder="이름 / 소속">
+    <label class="f" for="repWho">제보자 <span>*</span></label>
+    <input class="in" id="repWho" placeholder="이름 / 소속 (예: 홍길동 / 부산대)" autocomplete="name">
     <div class="actions"><button class="btn ghost" id="repCopy">내용 복사</button><button class="btn primary" id="repSend">제보 보내기</button></div>
     <p class="fallback" style="text-align:center">구글 폼으로 바로 보내져요. <a href="#" id="repFormLink">폼에서 직접 작성하기</a></p>
   </div>
@@ -695,12 +695,12 @@ $('openReport').onclick = ()=> openReport();
 $('repFormLink').onclick = e=>{ e.preventDefault(); window.open(prefillUrl(repData()), '_blank', 'noopener'); };
 $('repCopy').onclick = ()=>{
   const d=repData();
-  if (!d.school||!d.body){ toast('학교 이름과 제보 내용을 적어 주세요'); return; }
+  if (!d.school||!d.body||!d.who){ toast('학교 이름, 제보 내용, 제보자를 모두 적어 주세요'); return; }
   copy(`[SFC 캠퍼스 인스타 제보]\n유형: ${d.type}\n학교/센터: ${d.school}\n내용: ${d.body}${d.who?'\n제보자: '+d.who:''}`, '제보 내용을 복사했어요');
 };
 $('repSend').onclick = async ()=>{
   const d=repData();
-  if (!d.school||!d.body){ toast('학교 이름과 제보 내용을 적어 주세요'); return; }
+  if (!d.school||!d.body||!d.who){ toast('학교 이름, 제보 내용, 제보자를 모두 적어 주세요'); return; }
   const btn=$('repSend'); btn.disabled=true; btn.textContent='보내는 중…';
   const body=new URLSearchParams(); Object.keys(F).forEach(k=>{ if (d[k]) body.append(F[k], d[k]); });
   try{
